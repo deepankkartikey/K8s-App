@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+  labels:
+    app: mongo-cluster
+spec:
+  replicas: 1 # number of pods
+  selector:
+    # identifies a set of resources and links it to a deployment
+    matchLabels:
+      app: mongo
+  # configuration of the pod within deployment
+  template:
+    metadata:
+      # key-value pairs attached to K8s resources
+      # for pods, label is a required field
+      labels:
+        app: mongo
+    spec:
+      # creates pods with image mongo:8.0
+      containers:
+      # image is the image name pulled from dockerhub
+      - name: mongo
+        image: mongo:5.0
+        ports:
+        - containerPort: 27017
+        # setting env variables for mongo image from secret file
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom: 
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-user
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-password 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service
+spec:
+  selector: # select pods to forward requests to
+    app: mongo
+  ports:
+    - protocol: TCP
+      port: 8080  # sets the port of service
+      targetPort: 27017 # tells service which port to forward the request to the Pods

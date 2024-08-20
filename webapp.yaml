@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-deployment
+  labels:
+    app: webapp
+spec:
+  replicas: 1 # number of pods
+  selector:
+    # identifies a set of resources and links it to a deployment
+    matchLabels:
+      app: webapp
+  # configuration of the pod within deployment
+  template:
+    metadata:
+      # key-value pairs attached to K8s resources
+      # for pods, label is a required field
+      labels:
+        app: webapp
+    spec:
+      # creates pods with image demo-app
+      containers:
+      # demo-app is the image name pulled from dockerhub
+      - name: webapp
+        image: nanajanashia/k8s-demo-app:v1.0
+        ports:
+        - containerPort: 3000
+        env:
+        - name: USER_NAME
+          valueFrom: 
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-user
+        - name: USER_PWD
+          valueFrom: 
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-password
+        - name: DB_URL
+          valueFrom: 
+            configMapKeyRef:
+              name: mongo-config
+              key: mongo-url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-service
+spec:
+  type: NodePort # External service type # default type is ClusterIP
+  selector: # select pods to forward requests to
+    app: webapp
+  ports:
+    - protocol: TCP
+      port: 3000  # sets the port of service
+      targetPort: 3000 # tells service which port to forward the request to the Pods
+      nodePort: 30100 # exposes the service on each Node's IP at a static port (30000-32767)
