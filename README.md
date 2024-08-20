@@ -1,5 +1,7 @@
 ### Repository for a demo app with K8s using MongoDB and a Webapp
 
+![DB0E934A-5586-4A3F-ABFD-FA4A014D5BB9](https://github.com/user-attachments/assets/ca0d0397-5435-43ba-b4b8-2058398ae476)
+
 #### K8s manifest files 
 * mongo-config.yaml - contains configuration for mongo db url
 * mongo-secret.yaml - contains username and password for mongo db service
